@@ -43,6 +43,7 @@ sub net_analyze{
         elsif($type eq "Eltwise"){
             $lr_rlt{"ops"}      = ($lr_info{"channel_out"} * $lr_info{"height_out"} * $lr_info{"width_out"}) / (1000*1000);
             $lr_rlt{"weight"}   = 0;
+            $lr_rlt{"data_in"}  = 2 * $lr_rlt{"data_in"};
         }
         $lr_rlt{"mem_access"} = $lr_rlt{"data_in"} + $lr_rlt{"data_out"} + $lr_rlt{"weight"};
         $net_rlt{$lr_name} = \%lr_rlt;
@@ -151,15 +152,19 @@ sub net_analyze{
 
 sub net_dump{
     my %net_rlt = %{$_[0]};
-    my @name = @{$_[1]};
+    my %net_parse = %{$_[1]};
+    my @name = @{$_[2]};
 
-    printf "%-30s", "name";
+    printf "%-40s", "name";
     printf "%-18s", "type";
-    printf "%-18s", "input_size/M";
-    printf "%-18s", "output_size/M";
-    printf "%-18s", "weight_size/M";
-    printf "%-18s", "mem_access/M";
-    printf "%-18s", "operations/M";
+    printf "%-10s", "kernel";
+    printf "%-10s", "stride";
+    printf "%-10s", "output_c";
+    printf "%-10s", "input/M";
+    printf "%-10s", "output/M";
+    printf "%-10s", "weight/M";
+    printf "%-10s", "mem_bw/M";
+    printf "%-10s", "ops/M";
     printf "\n";
 
     push(@name, "sum_conv");
@@ -169,14 +174,26 @@ sub net_dump{
     push(@name, "sum_all");
     foreach(@name){
         if(exists($net_rlt{$_})){
-            printf "%-30s", $_;
+            printf "%-40s", $_;
             my %layer_info = %{$net_rlt{$_}};
             printf "%-18s", $layer_info{"type"};
-            printf "%-18.03f", $layer_info{"data_in"};
-            printf "%-18.03f", $layer_info{"data_out"};
-            printf "%-18.03f", $layer_info{"weight"};
-            printf "%-18.03f", $layer_info{"mem_access"};
-            printf "%-18.03f", $layer_info{"ops"};
+            if(exists($layer_info{"type"}) and ($layer_info{"type"} eq "Convolution" or $layer_info{"type"} eq "DepthWiseConv")) {
+                my %layer_parse = %{$net_parse{$_}};
+                printf "%-10s", $layer_parse{"kernel_h"}."x".$layer_parse{"kernel_w"};
+                printf "%-10s", $layer_parse{"stride_h"}."x".$layer_parse{"stride_w"};
+                printf "%-10s", $layer_parse{"num_output"};
+            }
+            else {
+                my $empty = "";
+                printf "%-10s", $empty;
+                printf "%-10s", $empty;
+                printf "%-10s", $empty;
+            }
+            printf "%-10.03f", $layer_info{"data_in"};
+            printf "%-10.03f", $layer_info{"data_out"};
+            printf "%-10.03f", $layer_info{"weight"};
+            printf "%-10.03f", $layer_info{"mem_access"};
+            printf "%-10.03f", $layer_info{"ops"};
             printf "\n";
         }
     }

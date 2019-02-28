@@ -47,8 +47,8 @@ sub net_extension{
             $lr_info{"channel_out"} = $lr_info{"channel_in"};
 
             if(($lr_type eq "Convolution") || ($lr_type eq "Pooling") || ($lr_type eq "DepthWiseConv")){
-                $lr_info{"height_out"}  = ceil(($lr_info{"height_in"} + 2*$lr_info{"pad"} - $lr_info{"kernel_h"} + 1) / $lr_info{"stride"});
-                $lr_info{"width_out"}   = ceil(($lr_info{"width_in"} + 2*$lr_info{"pad"} - $lr_info{"kernel_w"} + 1) / $lr_info{"stride"});
+                $lr_info{"height_out"}  = ceil(($lr_info{"height_in"} + 2*$lr_info{"pad_h"} - $lr_info{"kernel_h"} + 1) / $lr_info{"stride_h"});
+                $lr_info{"width_out"}   = ceil(($lr_info{"width_in"} + 2*$lr_info{"pad_w"} - $lr_info{"kernel_w"} + 1) / $lr_info{"stride_w"});
                 $lr_info{"channel_out"} = $lr_info{"num_output"};
                 if($lr_type eq "Pooling"){
                     $lr_info{"channel_out"}  = $lr_info{"channel_in"};

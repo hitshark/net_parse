@@ -1,0 +1,3 @@
+face_deploy_list:
+1. face_64_deploy.prototxt: 人脸识别64层resnet网络，对应目前最好的人脸识别效果模型；
+2. face_86_deploy.prototxt: 人脸识别86层resnet网络，对应目前正在训练中的人脸识别模型；

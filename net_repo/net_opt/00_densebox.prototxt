@@ -1,0 +1,297 @@
+name:"test"
+input:"data"
+input_shape{
+dim:1
+dim:3
+dim:320
+dim:320
+}
+layer {
+  name: "L0"
+  type: "Convolution"
+  bottom: "data"
+  top: "N1"
+  phase: TRAIN
+  convolution_param {
+    num_output: 32
+    bias_term: true
+    pad: 3
+    kernel_size: 7
+    stride: 4
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu1"
+  type: "ReLU"
+  bottom: "N1"
+  top: "relu1"
+  phase: TRAIN
+}
+layer {
+  name: "pool1"
+  type: "Pooling"
+  bottom: "relu1"
+  top: "pool1"
+  phase: TRAIN
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "L1"
+  type: "Convolution"
+  bottom: "pool1"
+  top: "N2"
+  phase: TRAIN
+  convolution_param {
+    num_output: 64
+    bias_term: true
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu2"
+  type: "ReLU"
+  bottom: "N2"
+  top: "relu2"
+  phase: TRAIN
+}
+layer {
+  name: "pool2"
+  type: "Pooling"
+  bottom: "relu2"
+  top: "pool2"
+  phase: TRAIN
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "L2"
+  type: "Convolution"
+  bottom: "pool2"
+  top: "N3"
+  phase: TRAIN
+  convolution_param {
+    num_output: 64
+    bias_term: true
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu3"
+  type: "ReLU"
+  bottom: "N3"
+  top: "relu3"
+  phase: TRAIN
+}
+layer {
+  name: "L3"
+  type: "Convolution"
+  bottom: "relu3"
+  top: "N4"
+  phase: TRAIN
+  convolution_param {
+    num_output: 64
+    bias_term: true
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu4"
+  type: "ReLU"
+  bottom: "N4"
+  top: "relu4"
+  phase: TRAIN
+}
+layer {
+  name: "L4"
+  type: "Convolution"
+  bottom: "relu4"
+  top: "N5"
+  phase: TRAIN
+  convolution_param {
+    num_output: 64
+    bias_term: true
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu5"
+  type: "ReLU"
+  bottom: "N5"
+  top: "relu5"
+  phase: TRAIN
+}
+layer {
+  name: "pool5"
+  type: "Pooling"
+  bottom: "relu5"
+  top: "pool5"
+  phase: TRAIN
+  pooling_param {
+    pool: MAX
+    kernel_size: 3
+    stride: 2
+  }
+}
+layer {
+  name: "L5"
+  type: "Convolution"
+  bottom: "pool5"
+  top: "N6"
+  phase: TRAIN
+  convolution_param {
+    num_output: 64
+    bias_term: true
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu6"
+  type: "ReLU"
+  bottom: "N6"
+  top: "relu6"
+  phase: TRAIN
+}
+layer {
+  name: "L6"
+  type: "Convolution"
+  bottom: "relu6"
+  top: "N7"
+  phase: TRAIN
+  convolution_param {
+    num_output: 128
+    bias_term: true
+    pad: 1
+    kernel_size: 3
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 1
+    }
+  }
+}
+layer {
+  name: "relu7"
+  type: "ReLU"
+  bottom: "N7"
+  top: "relu7"
+  phase: TRAIN
+}
+layer {
+  name: "bb-output"
+  type: "Convolution"
+  bottom: "relu7"
+  top: "bb-output"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  phase: TRAIN
+  convolution_param {
+    num_output: 256
+    bias_term: true
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}
+layer {
+  name: "pixel-conv"
+  type: "Convolution"
+  bottom: "relu7"
+  top: "pixel-conv"
+  param {
+    lr_mult: 1
+    decay_mult: 1
+  }
+  param {
+    lr_mult: 2
+    decay_mult: 0
+  }
+  phase: TRAIN
+  convolution_param {
+    num_output: 128
+    bias_term: true
+    kernel_size: 1
+    weight_filler {
+      type: "gaussian"
+      std: 0.01
+    }
+    bias_filler {
+      type: "constant"
+      value: 0
+    }
+  }
+}

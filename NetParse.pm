@@ -24,7 +24,7 @@ sub net_parse{
         if(($line =~ /^\s*input:\s*"data"/) || ($line =~ /^\s*top:\s*\"data\"/)){
             my %layer;          # for data input layer, use map data structure
             my @data_dim = ("batch", "channel_in", "height_in", "width_in");
-            while(defined($line = <FIN>) && ($line !~ /^layer\s*{/)){
+            while(defined($line = <FIN>) && ($line !~ /^layer\s*\{/)){
                 if($line =~ /^\s*input_param.*dim:\s*(\d+)\s*dim:\s*(\d+)\s*dim:\s*(\d+)\s*dim:\s*(\d+)/){
                     $layer{"batch"} = $1;
                     $layer{"channel_in"} = $2;
@@ -48,11 +48,14 @@ sub net_parse{
         }
 
         # parse each layer information
-        if($data_parse_done && ($line =~ /^layer\s*{/)){
+        if($data_parse_done && ($line =~ /^layer\s*\{/)){
             my @bottom;         # collect bottom layer name
-            my $pad = 0;        # no padding in pooling, and pad field need to be initialized for calculation;
-            my $stride = 1;     # some described files such as googlenet leave out this field;
+            my $pad_h = 0;      # no padding in pooling, and pad field need to be initialized for calculation;
+            my $pad_w = 0;
+            my $stride_h = 1;   # some described files such as googlenet leave out this field;
+            my $stride_w = 1;
             my $name;           # current layer name
+            my $group;          # group for depth-wise convolution
             my %layer;          # for each layer, use map data structure
             my $type_done = 0;  # indicate if type field is parsed
             while(defined($line = <FIN>) && ($line !~ /^}\s*$/)){
@@ -74,17 +77,35 @@ sub net_parse{
                     $type_done = 1;
                 }
                 elsif($line =~ /^\s*num_output:\s*([\d]+)/) {$layer{"num_output"} = $1;}
-                elsif($line =~ /^\s*pad:\s*([\d]+)/) {$pad = $1;}
+                elsif($line =~ /^\s*group:\s*([\d]+)/) {
+                    $group = $1;
+                    if($group > 1) {$layer{"type"} = "DepthWiseConv";}
+                }
+                elsif($line =~ /^\s*pad:\s*([\d]+)/) {
+                    $pad_h = $1;
+                    $pad_w = $1;
+                }
+                elsif($line =~ /^\s*pad_h:\s*([\d]+)/) {$pad_h = $1;}
+                elsif($line =~ /^\s*pad_w:\s*([\d]+)/) {$pad_w = $1;}
+
                 elsif($line =~ /^\s*kernel_size:\s*([\d]+)/) {
                     $layer{"kernel_h"} = $1;
                     $layer{"kernel_w"} = $1;
                 }
                 elsif($line =~ /^\s*kernel_h:\s*([\d]+)/) {$layer{"kernel_h"} = $1;}
                 elsif($line =~ /^\s*kernel_w:\s*([\d]+)/) {$layer{"kernel_w"} = $1;}
-                elsif($line =~ /^\s*stride:\s*([\d]+)/) {$stride = $1;}
+
+                elsif($line =~ /^\s*stride:\s*([\d]+)/) {
+                    $stride_h = $1;
+                    $stride_w = $1;
+                }
+                elsif($line =~ /^\s*stride_h:\s*([\d]+)/) {$stride_h = $1;}
+                elsif($line =~ /^\s*stride_w:\s*([\d]+)/) {$stride_w = $1;}
             }
-            $layer{"pad"} = $pad;
-            $layer{"stride"} = $stride;
+            $layer{"pad_h"} = $pad_h;
+            $layer{"pad_w"} = $pad_w;
+            $layer{"stride_h"} = $stride_h;
+            $layer{"stride_w"} = $stride_w;
             $layer{"bottom"} = \@bottom;
             $net{$name} = \%layer;
         }
